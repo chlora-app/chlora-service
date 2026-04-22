@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Maven
+target/
+!target/*.jar
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.class
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Config sensitif
+.env
+*.env
+application-dev.yml
+
+# Log
+*.log
+logs/
+
+# Test
+src/test/
+
+# Docs
+README.md
+docs/
