@@ -1,5 +1,6 @@
 package cloud.chlora.management.device.application.usecase;
 
+import cloud.chlora.management.device.domain.port.PotNamePort;
 import cloud.chlora.management.shared.error.IotErrorCode;
 import cloud.chlora.management.shared.exception.AppException;
 import cloud.chlora.management.device.adapter.in.web.request.DeviceCreateRequest;
@@ -8,7 +9,7 @@ import cloud.chlora.management.device.adapter.in.web.response.*;
 import cloud.chlora.management.device.application.port.in.DeviceUseCase;
 import cloud.chlora.management.device.domain.model.Device;
 import cloud.chlora.management.device.domain.model.DeviceStatus;
-import cloud.chlora.management.device.domain.port.ClusterExistencePort;
+import cloud.chlora.management.device.domain.port.PotExistencePort;
 import cloud.chlora.management.device.domain.port.DeviceReadRepository;
 import cloud.chlora.management.device.domain.port.DeviceWriteRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +24,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DeviceUseCaseImpl implements DeviceUseCase {
 
-    private final DeviceReadRepository  readRepository;
+    private final DeviceReadRepository readRepository;
     private final DeviceWriteRepository writeRepository;
-    private final ClusterExistencePort  clusterExistencePort;
+    private final PotExistencePort potExistencePort;
+    private final PotNamePort potNamePort;
 
     // ── Queries ───────────────────────────────────────────────────────────────
-
     @Override
     public PagedDeviceResponse findAll(
             int page, int size, String search, String sort, String order,
-            String clusterId, String status
+            String potId, String status
     ) {
         if (page < 1) throw AppException.of(IotErrorCode.PAGE_LOWER_THAN_ONE);
         if (size < 1) throw AppException.of(IotErrorCode.SIZE_LOWER_THAN_ONE);
@@ -40,16 +41,17 @@ public class DeviceUseCaseImpl implements DeviceUseCase {
         DeviceStatus parsedStatus = parseStatus(status);
         int offset = (page - 1) * size;
 
-        List<PagedDeviceItem> devices = readRepository
-                .findAll(search, clusterId, parsedStatus, resolveColumn(sort), resolveDir(order), size, offset)
-                .stream()
+        List<Device> rawDevices = readRepository
+                .findAll(search, potId, parsedStatus, resolveColumn(sort), resolveDir(order), size, offset);
+
+        List<PagedDeviceItem> devices = rawDevices.stream()
                 .map(d -> new PagedDeviceItem(
-                        d.deviceId(), d.deviceName(), d.deviceType(),
-                        d.status(), d.clusterId(), null, d.createdAt()
+                        d.deviceId(), d.deviceName(), d.status(),
+                        d.potId(), d.potName(), d.createdAt()
                 ))
                 .toList();
 
-        long total      = readRepository.countAll(search, clusterId, parsedStatus);
+        long total      = readRepository.countAll(search, potId, parsedStatus);
         int  totalPages = (int) Math.ceil((double) total / size);
 
         return new PagedDeviceResponse(total, page, size, totalPages, devices);
@@ -60,36 +62,36 @@ public class DeviceUseCaseImpl implements DeviceUseCase {
         Device device = requireDevice(deviceId);
         if (device.isDeleted()) throw AppException.of(IotErrorCode.DEVICE_ALREADY_DELETED);
 
+        String potName = potNamePort.getPotName(device.potId());
+        log.info("[DeviceUseCase] Pot Name: {}", potName);
+
         return new DeviceGetResponse(
-                device.deviceId(), device.deviceName(), device.deviceType(),
-                device.clusterId(), device.status(), device.createdAt(), device.updatedAt()
+                device.deviceId(), device.deviceName(), device.potId(),
+                potName, device.status(), device.createdAt(), device.updatedAt()
         );
     }
 
     // ── Commands ──────────────────────────────────────────────────────────────
-
     @Override
     @Transactional
     public DeviceCreateResponse createDevice(DeviceCreateRequest request) {
-        if (!clusterExistencePort.existsByClusterId(request.clusterId())) {
-            log.warn("[DeviceUseCase] createDevice - cluster not found: {}", request.clusterId());
-            throw AppException.of(IotErrorCode.CLUSTER_NOT_FOUND);
+        if (!potExistencePort.existsByPotId(request.potId())) {
+            log.warn("[DeviceUseCase] createDevice - pot not found: {}", request.potId());
+            throw AppException.of(IotErrorCode.POT_NOT_FOUND);
         }
 
         Device saved = writeRepository.create(request);
         log.info("[DeviceUseCase] created deviceId={}", saved.deviceId());
 
         return new DeviceCreateResponse(
-                saved.deviceId(), saved.deviceName(), saved.deviceType(),
-                saved.clusterId(), saved.status(), saved.createdAt()
+                saved.deviceId(), saved.deviceName(), saved.potId(), saved.status(), saved.createdAt()
         );
     }
 
     @Override
     @Transactional
     public DeviceUpdateResponse updateDevice(String deviceId, DeviceUpdateRequest request) {
-        if (request.deviceName() == null && request.deviceType() == null
-                && request.status() == null && request.clusterId() == null) {
+        if (request.deviceName() == null && request.status() == null && request.potId() == null) {
             throw AppException.of(IotErrorCode.DEVICE_UPDATE_EMPTY);
         }
 
@@ -97,12 +99,11 @@ public class DeviceUseCaseImpl implements DeviceUseCase {
             throw AppException.of(IotErrorCode.DEVICE_REQUEST_INVALID);
         }
 
-        if (request.clusterId() != null && !clusterExistencePort.existsByClusterId(request.clusterId())) {
-            log.warn("[DeviceUseCase] updateDevice - cluster not found: {}", request.clusterId());
-            throw AppException.of(IotErrorCode.CLUSTER_NOT_FOUND);
+        if (request.potId() != null && !potExistencePort.existsByPotId(request.potId())) {
+            log.warn("[DeviceUseCase] updateDevice - pot not found: {}", request.potId());
+            throw AppException.of(IotErrorCode.POT_NOT_FOUND);
         }
 
-        // validate status string before hitting the write adapter
         if (request.status() != null) parseStatus(request.status());
 
         Device device = requireDevice(deviceId);
@@ -112,8 +113,7 @@ public class DeviceUseCaseImpl implements DeviceUseCase {
         log.info("[DeviceUseCase] updated deviceId={}", deviceId);
 
         return new DeviceUpdateResponse(
-                updated.deviceId(), updated.deviceName(), updated.deviceType(),
-                updated.status(), updated.clusterId(), updated.updatedAt()
+                updated.deviceId(), updated.deviceName(), updated.status(), updated.potId(), updated.updatedAt()
         );
     }
 
@@ -128,7 +128,6 @@ public class DeviceUseCaseImpl implements DeviceUseCase {
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
-
     private Device requireDevice(String deviceId) {
         return readRepository.findByDeviceId(deviceId)
                 .orElseThrow(() -> AppException.of(IotErrorCode.DEVICE_NOT_FOUND));
@@ -145,12 +144,12 @@ public class DeviceUseCaseImpl implements DeviceUseCase {
 
     private String resolveColumn(String sort) {
         return switch (sort == null ? "" : sort) {
-            case "deviceId", "device_id"       -> "deviceId";
-            case "deviceName", "device_name"   -> "deviceName";
-            case "deviceType", "device_type"   -> "deviceType";
-            case "status"                      -> "status";
-            case "clusterId", "cluster_id"     -> "clusterId";
-            default                            -> "createdAt";
+            case "deviceId",   "device_id"   -> "deviceId";
+            case "deviceName", "device_name" -> "deviceName";
+            case "status"                    -> "status";
+            case "potId",      "pot_id"      -> "potId";
+            case "potName",    "pot_name"    -> "potName";
+            default                          -> "createdAt";
         };
     }
 

@@ -25,10 +25,10 @@ public class DeviceController {
             @RequestParam(required = false)            String search,
             @RequestParam(defaultValue = "created_at") String sort,
             @RequestParam(defaultValue = "asc")        String order,
-            @RequestParam(required = false)            String clusterId,
+            @RequestParam(required = false)            String potId,
             @RequestParam(required = false)            String status
     ) {
-        return ResponseEntity.ok(deviceUseCase.findAll(page, size, search, sort, order, clusterId, status));
+        return ResponseEntity.ok(deviceUseCase.findAll(page, size, search, sort, order, potId, status));
     }
 
     @GetMapping("/{deviceId}")

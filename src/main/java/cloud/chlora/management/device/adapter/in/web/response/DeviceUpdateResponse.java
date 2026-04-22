@@ -7,8 +7,7 @@ import java.time.Instant;
 public record DeviceUpdateResponse(
         String deviceId,
         String deviceName,
-        String deviceType,
         DeviceStatus status,
-        String clusterId,
+        String potId,
         Instant updatedAt
 ) {}

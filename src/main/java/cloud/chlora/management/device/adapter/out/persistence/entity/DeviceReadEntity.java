@@ -25,14 +25,12 @@ public class DeviceReadEntity {
     @Column(name = "device_name")
     private String deviceName;
 
-    @Column(name = "device_type")
-    private String deviceType;
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private DeviceStatus status;
 
-    @Column(name = "cluster_id")
-    private String clusterId;
+    @Column(name = "pot_id")
+    private String potId;
 
     @Column(name = "created_at")
     private Instant createdAt;

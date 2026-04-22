@@ -7,9 +7,8 @@ import java.time.Instant;
 public record PagedDeviceItem(
         String deviceId,
         String deviceName,
-        String deviceType,
         DeviceStatus status,
-        String clusterId,
-        String clusterName,
+        String potId,
+        String potName,
         Instant createdAt
 ) {}

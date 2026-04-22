@@ -16,4 +16,14 @@ public interface DeviceWriteJpaRepository extends JpaRepository<DeviceWriteEntit
     @Modifying
     @Query("UPDATE DeviceWriteEntity d SET d.deletedAt = :now WHERE d.deviceId = :deviceId AND d.deletedAt IS NULL")
     int softDelete(@Param("deviceId") String deviceId, @Param("now") Instant now);
+
+    @Modifying
+    @Query(value = """
+            UPDATE devices
+            SET status = 'OFFLINE', updated_at = NOW()
+            WHERE deleted_at IS NULL
+              AND status = 'ONLINE'
+              AND (last_seen_at IS NULL OR last_seen_at < :threshold)
+            """, nativeQuery = true)
+    int setOfflineIfStale(@Param("threshold") Instant threshold);
 }

@@ -8,9 +8,6 @@ public record DeviceCreateRequest(
         @NotBlank
         String deviceName,
 
-        @NotBlank
-        String deviceType,
-
         @NotNull
-        String clusterId
+        String potId
 ) {}

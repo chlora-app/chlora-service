@@ -11,10 +11,10 @@ public interface DeviceReadRepository {
     Optional<Device> findByDeviceId(String deviceId);
 
     List<Device> findAll(
-            String search, String clusterId, DeviceStatus status,
+            String search, String potId, DeviceStatus status,
             String sortColumn, String sortDirection,
             int limit, int offset
     );
 
-    long countAll(String search, String clusterId, DeviceStatus status);
+    long countAll(String search, String potId, DeviceStatus status);
 }

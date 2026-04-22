@@ -3,7 +3,6 @@ package cloud.chlora.management.device.adapter.out.persistence.entity;
 import cloud.chlora.management.device.domain.model.DeviceStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.Instant;
 
@@ -26,14 +25,12 @@ public class DeviceWriteEntity {
     @Column(name = "device_name", nullable = false)
     private String deviceName;
 
-    @Column(name = "device_type", nullable = false)
-    private String deviceType;
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private DeviceStatus status;
 
-    @Column(name = "cluster_id", nullable = false)
-    private String clusterId;
+    @Column(name = "pot_id", nullable = false)
+    private String potId;
 
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
@@ -43,6 +40,9 @@ public class DeviceWriteEntity {
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
+
+    @Column(name = "last_seen_at")
+    private Instant lastSeenAt;
 
     @PrePersist
     void prePersist() {

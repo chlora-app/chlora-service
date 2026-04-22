@@ -26,8 +26,7 @@ public class DeviceWriteRepositoryAdapter implements DeviceWriteRepository {
     public Device create(DeviceCreateRequest request) {
         DeviceWriteEntity entity = DeviceWriteEntity.builder()
                 .deviceName(request.deviceName())
-                .deviceType(request.deviceType())
-                .clusterId(request.clusterId())
+                .potId(request.potId())
                 .status(DeviceStatus.OFFLINE)
                 .build();
 
@@ -41,8 +40,7 @@ public class DeviceWriteRepositoryAdapter implements DeviceWriteRepository {
                 .orElseThrow(() -> AppException.of(IotErrorCode.DEVICE_NOT_FOUND));
 
         if (request.deviceName() != null) entity.setDeviceName(request.deviceName());
-        if (request.deviceType() != null) entity.setDeviceType(request.deviceType());
-        if (request.clusterId()  != null) entity.setClusterId(request.clusterId());
+        if (request.potId()      != null) entity.setPotId(request.potId());
         if (request.status()     != null) {
             entity.setStatus(DeviceStatus.valueOf(request.status().trim().toUpperCase()));
         }
@@ -59,19 +57,25 @@ public class DeviceWriteRepositoryAdapter implements DeviceWriteRepository {
         }
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public int setOfflineIfStale(Instant threshold) {
+        return repository.setOfflineIfStale(threshold);
+    }
+
     // ── helper ────────────────────────────────────────────────────────────────
 
     private Device toDomain(DeviceWriteEntity e) {
-        return new Device(
-                e.getId(),
-                e.getDeviceId(),
-                e.getDeviceName(),
-                e.getDeviceType(),
-                e.getStatus(),
-                e.getClusterId(),
-                e.getCreatedAt(),
-                e.getUpdatedAt(),
-                e.getDeletedAt()
-        );
+        return Device.builder()
+                .id(e.getId())
+                .deviceId(e.getDeviceId())
+                .deviceName(e.getDeviceName())
+                .status(e.getStatus())
+                .potId(e.getPotId())
+                .potName(null)
+                .createdAt(e.getCreatedAt())
+                .updatedAt(e.getUpdatedAt())
+                .deletedAt(e.getDeletedAt())
+                .build();
     }
 }
