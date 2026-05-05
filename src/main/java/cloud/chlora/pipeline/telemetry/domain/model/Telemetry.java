@@ -1,7 +1,10 @@
 package cloud.chlora.pipeline.telemetry.domain.model;
 
+import lombok.Builder;
+
 import java.time.Instant;
 
+@Builder
 public record Telemetry(
         Long id,
         String deviceId,

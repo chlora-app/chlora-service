@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
@@ -21,6 +22,7 @@ public class ValidationPortAdapter implements ValidationPort {
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
+    @Transactional
     public ValidationResult validate(MqttPayload payload) {
         ValidationResult result = validator.validate(payload);
         if (result.isInvalid()) {
@@ -69,8 +71,8 @@ public class ValidationPortAdapter implements ValidationPort {
             float value, float min, float max,
             AnomalyType type, AnomalySeverity severity,
             ProcessedTelemetryEvent telemetry
-        ) {
-            if (value < min || value > max) {
+    ) {
+        if (value < min || value > max) {
             eventPublisher.publishEvent(new SensorAnomalyDetectedEvent(
                     telemetry.deviceId(),
                     telemetry.deviceTimestamp(),

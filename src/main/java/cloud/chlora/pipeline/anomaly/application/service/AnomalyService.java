@@ -1,0 +1,51 @@
+package cloud.chlora.pipeline.anomaly.application.service;
+
+import cloud.chlora.pipeline.anomaly.application.usecase.UpdateAnomalyUseCase;
+import cloud.chlora.pipeline.anomaly.domain.model.Anomaly;
+import cloud.chlora.pipeline.anomaly.domain.model.DetectionRequest;
+import cloud.chlora.pipeline.anomaly.domain.model.DetectionResponse;
+import cloud.chlora.pipeline.anomaly.domain.port.AnomalyDetectionPort;
+import cloud.chlora.pipeline.anomaly.domain.port.AnomalyPersistencePort;
+import cloud.chlora.pipeline.shared.event.AnomalySeverity;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class AnomalyService implements UpdateAnomalyUseCase {
+
+    private final AnomalyDetectionPort detectionPort;
+    private final AnomalyPersistencePort persistencePort;
+
+    @Override
+    public void update(DetectionRequest request, Long telemetryId) {
+        DetectionResponse response = detectionPort.detect(request);
+        if (!response.isAnomaly()) {
+            log.info("[Anomaly] No anomaly detected telemetryId={} deviceId={}", telemetryId, request.deviceId());
+            return;
+        }
+
+        log.warn(
+                "[Anomaly] Anomaly detected telemetryId={} deviceId={} severity={} score={}",
+                telemetryId, request.deviceId(), response.severity(), response.anomalyScore()
+        );
+
+        Anomaly anomaly = Anomaly.builder()
+                .id(null)
+                .anomalyType(null)
+                .severity(AnomalySeverity.valueOf(response.severity()))
+                .anomalyScore(response.anomalyScore())
+                .detectedBy(response.detectedBy())
+                .modelVersion(response.modelVersion())
+                .detectedAt(Instant.now())
+                .telemetryId(telemetryId)
+                .notificationId(null)
+                .build();
+
+        persistencePort.save(anomaly);
+    }
+}

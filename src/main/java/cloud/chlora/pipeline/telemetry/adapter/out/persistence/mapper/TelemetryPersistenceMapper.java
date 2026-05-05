@@ -19,4 +19,18 @@ public final class TelemetryPersistenceMapper {
                 .isValid(t.isValid())
                 .build();
     }
+
+    public static Telemetry toDomain(TelemetryEntity entity) {
+        return Telemetry.builder()
+                .id(entity.getId())
+                .deviceId(entity.getDeviceId())
+                .deviceTimestamp(entity.getDeviceTimestamp())
+                .soilMoisture(entity.getSoilMoisture())
+                .temperature(entity.getTemperature())
+                .humidity(entity.getHumidity())
+                .batteryLevel(entity.getBatteryLevel())
+                .receivedAt(entity.getReceivedAt())
+                .isValid(entity.isValid())
+                .build();
+    }
 }
