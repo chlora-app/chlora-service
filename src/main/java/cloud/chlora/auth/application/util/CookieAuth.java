@@ -15,7 +15,7 @@ public final class CookieAuth {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(Duration.ofHours(8))
                 .build()
                 .toString();
@@ -26,7 +26,7 @@ public final class CookieAuth {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(Duration.ZERO)
                 .build()
                 .toString();

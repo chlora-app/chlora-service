@@ -48,7 +48,8 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:5173",
                 "https://plantya-dev.vercel.app",
-                "https://chlora.cloud"
+                "https://chlora.cloud",
+                "https://chlora-dev.vercel.app"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
