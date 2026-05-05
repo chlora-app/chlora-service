@@ -89,7 +89,7 @@ public class UserWriteRepositoryAdapter implements UserWriteRepository {
     // ── helper ────────────────────────────────────────────────────────────────
     private User toDomain(UserWriteEntity e) {
         return new User(
-                e.getId(), e.getUserId(), e.getEmail(), e.getPassword(),
+                e.getUserId(), e.getEmail(), e.getPassword(),
                 e.getName(), e.getRole(),
                 e.getCreatedAt(), e.getUpdatedAt(), e.getDeletedAt()
         );

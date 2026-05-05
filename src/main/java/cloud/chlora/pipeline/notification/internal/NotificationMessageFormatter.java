@@ -13,7 +13,6 @@ public class NotificationMessageFormatter {
     public Notification formatLowBattery(ProcessedTelemetryEvent event, BatteryNotificationThreshold threshold) {
         return new Notification(
                 null,
-                null,
                 event.deviceId(),
                 "%s battery is low (%.0f%% remaining)".formatted(
                         event.deviceId(),
@@ -42,7 +41,6 @@ public class NotificationMessageFormatter {
         };
 
         return new Notification(
-                null,
                 null,
                 event.deviceId(),
                 message,

@@ -6,7 +6,6 @@ import java.time.Instant;
 
 @Builder
 public record Device(
-        Long id,
         String deviceId,
         String deviceName,
         DeviceStatus status,
@@ -16,7 +15,5 @@ public record Device(
         Instant updatedAt,
         Instant deletedAt
 ) {
-    public boolean isDeleted() {
-        return deletedAt != null;
-    }
+    public boolean isDeleted() { return deletedAt != null; }
 }

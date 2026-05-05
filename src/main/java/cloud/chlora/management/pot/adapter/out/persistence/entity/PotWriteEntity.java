@@ -16,9 +16,6 @@ import java.time.Instant;
 public class PotWriteEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "pot_id", updatable = false)
     private String potId;
 
@@ -36,16 +33,10 @@ public class PotWriteEntity {
 
     @PrePersist
     void prePersist() {
-        if (potId == null) {
-            potId = "PT-" + RandomStringUtils.secure().nextAlphanumeric(6).toLowerCase();
-        }
-        if (createdAt == null) {
-            createdAt = Instant.now();
-        }
+        if (potId == null) potId = "PT-" + RandomStringUtils.secure().nextAlphanumeric(6).toLowerCase();
+        if (createdAt == null) createdAt = Instant.now();
     }
 
     @PreUpdate
-    void preUpdate() {
-        updatedAt = Instant.now();
-    }
+    void preUpdate() { updatedAt = Instant.now(); }
 }

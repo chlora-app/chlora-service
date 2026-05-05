@@ -57,7 +57,6 @@ public class PotWriteRepositoryAdapter implements PotWriteRepository {
 
     private Pot toDomain(PotWriteEntity e) {
         return new Pot(
-                e.getId(),
                 e.getPotId(),
                 e.getPotName(),
                 e.getCreatedAt(),

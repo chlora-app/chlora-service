@@ -16,9 +16,6 @@ import java.time.Instant;
 public class DeviceReadEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "device_id", insertable = false, updatable = false)
     private String deviceId;
 

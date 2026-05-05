@@ -16,9 +16,6 @@ import java.time.Instant;
 public class DeviceWriteEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "device_id", updatable = false)
     private String deviceId;
 
@@ -46,16 +43,10 @@ public class DeviceWriteEntity {
 
     @PrePersist
     void prePersist() {
-        if (createdAt == null) {
-            createdAt = Instant.now();
-        }
-        if (status == null) {
-            status = DeviceStatus.OFFLINE;
-        }
+        if (createdAt == null) createdAt = Instant.now();
+        if (status == null) status = DeviceStatus.OFFLINE;
     }
 
     @PreUpdate
-    void preUpdate() {
-        updatedAt = Instant.now();
-    }
+    void preUpdate() { updatedAt = Instant.now(); }
 }

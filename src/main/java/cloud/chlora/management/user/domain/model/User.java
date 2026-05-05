@@ -7,7 +7,6 @@ import java.time.Instant;
  * Owned by auth service; management treats this as read-only view.
  */
 public record User(
-        Long id,
         String userId,
         String email,
         String password,
@@ -17,7 +16,5 @@ public record User(
         Instant updatedAt,
         Instant deletedAt
 ) {
-    public boolean isDeleted() {
-        return deletedAt != null;
-    }
+    public boolean isDeleted() { return deletedAt != null; }
 }

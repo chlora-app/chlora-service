@@ -67,7 +67,6 @@ public class DeviceWriteRepositoryAdapter implements DeviceWriteRepository {
 
     private Device toDomain(DeviceWriteEntity e) {
         return Device.builder()
-                .id(e.getId())
                 .deviceId(e.getDeviceId())
                 .deviceName(e.getDeviceName())
                 .status(e.getStatus())

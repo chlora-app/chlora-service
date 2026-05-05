@@ -16,11 +16,6 @@ import java.time.Instant;
 public class UserReadEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    // Explicit @Column only to set insertable + updatable = false,
-    // not to rename — naming strategy already maps userId → user_id.
     @Column(name = "user_id", insertable = false, updatable = false)
     private String userId;
 

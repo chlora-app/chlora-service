@@ -15,9 +15,6 @@ import java.time.Instant;
 public class PotReadEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "pot_id", insertable = false, updatable = false)
     private String potId;
 

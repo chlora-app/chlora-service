@@ -9,7 +9,6 @@ public final class NotificationPersistenceMapper {
 
     public static Notification toDomain(NotificationWriteEntity e) {
         return new Notification(
-                e.getId(),
                 e.getNotificationId(),
                 e.getDeviceId(),
                 e.getMessage(),

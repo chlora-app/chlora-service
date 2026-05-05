@@ -9,7 +9,6 @@ public final class PotPersistenceMapper {
 
     public static Pot toDomain(PotReadEntity e) {
         return new Pot(
-                e.getId(),
                 e.getPotId(),
                 e.getPotName(),
                 e.getCreatedAt(),

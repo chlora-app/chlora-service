@@ -17,9 +17,6 @@ import java.time.Instant;
 public class UserWriteEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "user_id", updatable = false)
     private String userId;
 
@@ -47,17 +44,10 @@ public class UserWriteEntity {
 
     @PrePersist
     void prePersist() {
-        if (userId == null) {
-            userId = "U-" + RandomStringUtils.secure().nextAlphanumeric(6).toLowerCase();
-        }
-
-        if (createdAt == null) {
-            createdAt = Instant.now();
-        }
+        if (userId == null) userId = "U-" + RandomStringUtils.secure().nextAlphanumeric(6).toLowerCase();
+        if (createdAt == null) createdAt = Instant.now();
     }
 
     @PreUpdate
-    void preUpdate() {
-        updatedAt = Instant.now();
-    }
+    void preUpdate() { updatedAt = Instant.now(); }
 }

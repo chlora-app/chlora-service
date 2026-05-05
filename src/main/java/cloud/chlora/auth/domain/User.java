@@ -15,9 +15,6 @@ import java.time.Instant;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "user_id", nullable = false, unique = true, updatable = false)
     private String userId;
 
@@ -48,7 +45,6 @@ public class User {
         if (this.userId == null) {
             this.userId = "U-" + RandomStringUtils.secure().nextAlphanumeric(6).toLowerCase();
         }
-
         if (this.createdAt == null) {
             this.createdAt = Instant.now();
         }

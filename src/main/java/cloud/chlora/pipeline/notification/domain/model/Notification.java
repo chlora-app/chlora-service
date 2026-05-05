@@ -6,7 +6,6 @@ import cloud.chlora.pipeline.shared.NotificationType;
 import java.time.Instant;
 
 public record Notification(
-        Long id,
         String notificationId,
         String deviceId,
         String message,

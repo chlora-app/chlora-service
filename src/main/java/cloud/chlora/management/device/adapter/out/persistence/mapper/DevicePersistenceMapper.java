@@ -11,7 +11,6 @@ public final class DevicePersistenceMapper {
 
     public static Device toDomain(DeviceReadEntity e) {
         return Device.builder()
-                .id(e.getId())
                 .deviceId(e.getDeviceId())
                 .deviceName(e.getDeviceName())
                 .status(e.getStatus())

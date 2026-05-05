@@ -9,7 +9,6 @@ public final class UserPersistenceMapper {
 
     public static User toDomain(UserReadEntity e) {
         return new User(
-                e.getId(),
                 e.getUserId(),
                 e.getEmail(),
                 e.getPassword(),
