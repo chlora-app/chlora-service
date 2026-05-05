@@ -1,7 +1,7 @@
 package cloud.chlora.pipeline.ingestion.internal;
 
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -18,8 +18,11 @@ public class MqttPayloadParser {
                 receivedAt
         );
 
-        var data = mapper.readValue(payload, MqttPayload.MqttData.class);
-
-        return new MqttPayload(metadata, data);
+        try {
+            var data = mapper.readValue(payload, MqttPayload.MqttData.class);
+            return new MqttPayload(metadata, data);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse MQTT payload", e);
+        }
     }
 }
