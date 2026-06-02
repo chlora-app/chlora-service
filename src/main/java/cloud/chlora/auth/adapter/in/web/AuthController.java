@@ -8,7 +8,7 @@ import cloud.chlora.auth.adapter.in.web.request.RegisterRequest;
 import cloud.chlora.auth.adapter.in.web.response.LoginResponse;
 import cloud.chlora.auth.adapter.in.web.response.RegisterResponse;
 import cloud.chlora.auth.common.response.BaseResponse;
-import cloud.chlora.auth.application.util.CookieAuth;
+import cloud.chlora.shared.util.CookieAuth;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.NonNull;

@@ -25,18 +25,19 @@ public class RegisterUserUseCase {
     private final PasswordEncoder passwordEncoder;
 
     public BaseResponse<RegisterResponse> execute(RegisterRequest request) {
-        String maskedEmail = maskEmail(request.email());
+        String cleanEmail = request.email().trim().toLowerCase();
+        String maskedEmail = maskEmail(cleanEmail);
 
         log.info("event=register_attempt email={}", maskedEmail);
 
-        if (userRepository.findByEmail(request.email()).isPresent()) {
+        if (userRepository.findByEmail(cleanEmail).isPresent()) {
             log.warn("event=register_failed reason=email_exists email={}", maskedEmail);
-            throw new AuthException.EmailAlreadyRegisteredException(request.email());
+            throw new AuthException.EmailAlreadyRegisteredException(cleanEmail);
         }
 
         User user = User.builder()
                 .name(request.name())
-                .email(request.email())
+                .email(cleanEmail)
                 .password(passwordEncoder.encode(request.password()))
                 .role(UserRole.USER)
                 .build();

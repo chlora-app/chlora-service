@@ -31,8 +31,10 @@ public class LoginUseCase {
     private final JwtEncoder jwtEncoder;
 
     public LoginResult execute(LoginRequest request) {
-        String identifier = request.userIdOrEmail().trim();
-        boolean byEmail = EMAIL_PATTERN.matcher(identifier).matches();
+        String rawIdentifier = request.userIdOrEmail().trim();
+        boolean byEmail = EMAIL_PATTERN.matcher(rawIdentifier).matches();
+
+        String identifier = byEmail ? rawIdentifier.toLowerCase() : rawIdentifier;
         String loginMethod = byEmail ? "email" : "userId";
 
         log.info("event=login_attempt login_method={} user_identifier={}", loginMethod, identifier);
@@ -40,12 +42,12 @@ public class LoginUseCase {
         User user = (byEmail ? userRepository.findByEmail(identifier) : userRepository.findByUserId(identifier))
                 .orElseThrow(() -> {
                     log.warn("event=login_failed reason=user_not_found login_method={} user_identifier={}", loginMethod, identifier);
-                    return new AuthException.UserNotFoundException(identifier);
+                    return new AuthException.InvalidCredentialsException();
                 });
 
         if (user.isDeleted()) {
             log.warn("event=login_failed reason=user_deleted login_method={} user_identifier={}", loginMethod, identifier);
-            throw new AuthException.UserNotFoundException(identifier);
+            throw new AuthException.InvalidCredentialsException();
         }
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
