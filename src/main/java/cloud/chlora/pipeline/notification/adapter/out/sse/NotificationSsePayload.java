@@ -14,7 +14,7 @@ public record NotificationSsePayload(
             String message,
             NotificationSeverity severity,
             NotificationType notificationType,
-            Instant time, // TODO: Use Instant
+            Instant time,
             boolean isRead
     ) {}
 }

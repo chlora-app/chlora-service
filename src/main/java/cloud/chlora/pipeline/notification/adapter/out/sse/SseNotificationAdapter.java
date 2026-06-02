@@ -27,7 +27,7 @@ public class SseNotificationAdapter {
                 notification.message(),
                 notification.severity(),
                 notification.notificationType(),
-                notification.createdAt(), // TODO: Use Instant
+                notification.createdAt(),
                 false
         );
 

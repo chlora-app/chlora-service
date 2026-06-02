@@ -2,6 +2,7 @@ package cloud.chlora.pipeline.notification.internal;
 
 import cloud.chlora.pipeline.notification.domain.model.BatteryNotificationThreshold;
 import cloud.chlora.pipeline.notification.domain.model.Notification;
+import cloud.chlora.pipeline.shared.NotificationSeverity;
 import cloud.chlora.pipeline.shared.NotificationType;
 import cloud.chlora.pipeline.shared.event.ProcessedTelemetryEvent;
 import cloud.chlora.pipeline.shared.event.SensorAnomalyDetectedEvent;
@@ -14,9 +15,9 @@ public class NotificationMessageFormatter {
         return new Notification(
                 null,
                 event.deviceId(),
-                "%s battery is low (%.0f%% remaining)".formatted(
+                "%s battery is low (%d%% remaining)".formatted(
                         event.deviceId(),
-                        event.batteryLevel()
+                        Math.round(event.batteryLevel())
                 ),
                 threshold.getSeverity(),
                 NotificationType.BATTERY,
@@ -33,18 +34,26 @@ public class NotificationMessageFormatter {
             case SOIL_MOISTURE_OUT_OF_RANGE ->
                     "%s soil moisture anomaly detected (%.1f%%)".formatted(event.deviceId(), event.actualValue());
             case BATTERY_LOW ->
-                    "%s battery is low (%.0f%% remaining)".formatted(event.deviceId(), event.actualValue());
+                    "%s battery is low (%d%% remaining)".formatted(event.deviceId(), Math.round(event.actualValue()));
             case TIMESTAMP_DRIFT ->
                     "%s timestamp drift detected".formatted(event.deviceId());
             case SENSOR_UNRESPONSIVE ->
                     "%s sensor is unresponsive".formatted(event.deviceId());
+            case SENSOR_ANOMALY ->
+                    "%s sensor anomaly detected".formatted(event.deviceId());
+        };
+
+        NotificationSeverity notifSeverity = switch (event.severity()) {
+            case LOW      -> NotificationSeverity.INFO;
+            case MEDIUM, HIGH -> NotificationSeverity.WARNING;
+            case CRITICAL -> NotificationSeverity.CRITICAL;
         };
 
         return new Notification(
                 null,
                 event.deviceId(),
                 message,
-                cloud.chlora.pipeline.shared.NotificationSeverity.CRITICAL,
+                notifSeverity,
                 NotificationType.ANOMALY,
                 null
         );

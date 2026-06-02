@@ -7,6 +7,7 @@ import cloud.chlora.pipeline.notification.domain.model.BatteryNotificationThresh
 import cloud.chlora.pipeline.notification.domain.model.Notification;
 import cloud.chlora.pipeline.notification.domain.port.NotificationWriteRepository;
 import cloud.chlora.pipeline.shared.NotificationMessage;
+import cloud.chlora.shared.enums.AnomalySeverity;
 import cloud.chlora.shared.port.RegisteredUserReadPort;
 import cloud.chlora.pipeline.notification.domain.port.UserNotificationStatusWriteRepository;
 import cloud.chlora.pipeline.notification.internal.NotificationMessageFormatter;
@@ -36,14 +37,12 @@ public class SendNotificationUseCase {
 
     @Transactional
     public void handle(ProcessedTelemetryEvent event) {
-        // Reset rate limiter jika battery sudah di-charge (kembali di atas semua threshold)
-        rateLimiter.resetIfCharged(event.deviceId(), event.batteryLevel());
+        rateLimiter.resetIfCharged(event.deviceId(), Math.round(event.batteryLevel()));
 
-        BatteryNotificationThreshold.resolve(event.batteryLevel())
+        BatteryNotificationThreshold.resolve(Math.round(event.batteryLevel()))
                 .ifPresent(threshold -> {
                     if (rateLimiter.tryAcquire(event.deviceId(), threshold)) {
-                        log.info("[Notification] Battery {} triggered for device={}, level={}%",
-                                threshold, event.deviceId(), event.batteryLevel());
+                        log.info("[Notification] Battery {} triggered for device={}, level={}%", threshold, event.deviceId(), event.batteryLevel());
                         process(formatter.formatLowBattery(event, threshold));
                     }
                 });
@@ -51,36 +50,39 @@ public class SendNotificationUseCase {
 
     @Transactional
     public void handleAnomaly(SensorAnomalyDetectedEvent event) {
-        process(formatter.formatAnomaly(event));
+        Notification notification = formatter.formatAnomaly(event);
+        boolean shouldNotify = event.severity() != AnomalySeverity.LOW;
+
+        process(notification, shouldNotify);
     }
 
     private void process(Notification notification) {
-        // 1. Save notification
+        process(notification, true);
+    }
+
+    private void process(Notification notification, boolean shouldNotify) {
         Notification saved = notificationWriteRepository.save(notification);
         log.info("[Notification] Saved: {}", saved.notificationId());
 
-        // 2. Fan-out ke semua user aktif
         List<String> userIds = registeredUserReadPort.findAllActiveUserIds();
         statusWriteRepository.fanOut(saved, userIds);
         log.info("[Notification] Fanned out to {} users", userIds.size());
 
-        // 3. Kirim Telegram
-        var message = new NotificationMessage(
-                saved.notificationType().name(),
-                saved.message(),
-                saved.severity(),
-                saved.notificationType()
-        );
-        notificationSenderPort.send(message);
+        if (shouldNotify) {
+            var message = new NotificationMessage(
+                    saved.notificationType().name(),
+                    saved.message(),
+                    saved.severity(),
+                    saved.notificationType()
+            );
+            notificationSenderPort.send(message);
 
-        // 4. Kirim SSE setelah transaction commit — mencegah race condition
-        //    di mana client menerima event lalu langsung GET /notifications
-        //    sebelum data tersimpan di DB.
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                sseNotificationAdapter.notifyUsers(saved, userIds);
-            }
-        });
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    sseNotificationAdapter.notifyUsers(saved, userIds);
+                }
+            });
+        }
     }
 }
