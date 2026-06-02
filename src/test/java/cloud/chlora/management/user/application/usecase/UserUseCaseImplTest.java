@@ -43,8 +43,8 @@ class UserUseCaseImplTest {
 
     @BeforeEach
     void setUp() {
-        activeUser = new User(1L, "user-1", "test@test.com", "pass", "Test User", UserRole.USER, Instant.now(), Instant.now(), null);
-        deletedUser = new User(2L, "user-2", "deleted@test.com", "pass", "Deleted User", UserRole.USER, Instant.now(), Instant.now(), Instant.now());
+        activeUser = new User("user-1", "test@test.com", "pass", "Test User", UserRole.USER, Instant.now(), Instant.now(), null);
+        deletedUser = new User("user-2", "deleted@test.com", "pass", "Deleted User", UserRole.USER, Instant.now(), Instant.now(), Instant.now());
     }
 
     @Test

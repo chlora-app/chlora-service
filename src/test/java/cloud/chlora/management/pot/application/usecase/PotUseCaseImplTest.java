@@ -45,8 +45,8 @@ class PotUseCaseImplTest {
 
     @BeforeEach
     void setUp() {
-        activePot = new Pot(1L, "pot-1", "Living Room", Instant.now(), Instant.now(), null);
-        deletedPot = new Pot(2L, "pot-2", "Kitchen", Instant.now(), Instant.now(), Instant.now());
+        activePot = new Pot("pot-1", "Living Room", Instant.now(), Instant.now(), null);
+        deletedPot = new Pot("pot-2", "Kitchen", Instant.now(), Instant.now(), Instant.now());
     }
 
     @Test
@@ -86,7 +86,7 @@ class PotUseCaseImplTest {
     @DisplayName("findByPotId should return pot with its devices")
     void findByPotId_shouldReturnPotWithDevices() {
         // Arrange
-        Device device = new Device(1L, "dev-1", "Sensor A", DeviceStatus.ONLINE, "pot-1", "Living Room", Instant.now(), Instant.now(), null);
+        Device device = new Device("dev-1", "Sensor A", DeviceStatus.ONLINE, "pot-1", "Living Room", Instant.now(), Instant.now(), null);
         when(readRepository.findByPotId("pot-1")).thenReturn(Optional.of(activePot));
         when(readRepository.findDevicesByPotId("pot-1")).thenReturn(List.of(device));
 
@@ -149,7 +149,7 @@ class PotUseCaseImplTest {
         when(readRepository.findByPotId("pot-1")).thenReturn(Optional.of(activePot));
         when(readRepository.existsByPotName("New Name")).thenReturn(false);
         
-        Pot updatedPot = new Pot(1L, "pot-1", "New Name", Instant.now(), Instant.now(), null);
+        Pot updatedPot = new Pot("pot-1", "New Name", Instant.now(), Instant.now(), null);
         when(writeRepository.update(eq("pot-1"), eq(request))).thenReturn(updatedPot);
 
         // Act

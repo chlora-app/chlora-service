@@ -51,7 +51,6 @@ class DeviceUseCaseImplTest {
     @BeforeEach
     void setUp() {
         activeDevice = Device.builder()
-                .id(1L)
                 .deviceId("dev-1")
                 .deviceName("Sensor A")
                 .status(DeviceStatus.ONLINE)
