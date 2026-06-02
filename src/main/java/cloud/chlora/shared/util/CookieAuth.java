@@ -1,4 +1,4 @@
-package cloud.chlora.auth.application.util;
+package cloud.chlora.shared.util;
 
 import org.springframework.http.ResponseCookie;
 
