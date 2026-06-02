@@ -1,6 +1,6 @@
 package cloud.chlora.infrastructure.security.config;
 
-import cloud.chlora.auth.application.util.CookieAuth;
+import cloud.chlora.shared.util.CookieAuth;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
