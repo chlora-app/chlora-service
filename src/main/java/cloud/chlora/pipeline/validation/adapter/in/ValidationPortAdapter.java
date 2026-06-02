@@ -5,6 +5,8 @@ import cloud.chlora.pipeline.shared.ValidationResult;
 import cloud.chlora.pipeline.shared.event.*;
 import cloud.chlora.pipeline.shared.port.ValidationPort;
 import cloud.chlora.pipeline.validation.application.validator.TelemetryValidator;
+import cloud.chlora.shared.enums.AnomalySeverity;
+import cloud.chlora.shared.enums.AnomalyType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -39,8 +41,7 @@ public class ValidationPortAdapter implements ValidationPort {
                 .receivedAt(payload.metadata().receivedAt())
                 .build();
 
-        log.info("[Validation] Publishing TelemetryProcessedEvent for device={} isValid={}",
-                telemetryEvent.deviceId(), result.valid());
+        log.info("[Validation] Publishing TelemetryProcessedEvent for device={} isValid={}", telemetryEvent.deviceId(), result.valid());
 
         eventPublisher.publishEvent(new TelemetryProcessedEvent(telemetryEvent, result));
 
