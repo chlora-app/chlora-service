@@ -1,0 +1,125 @@
+services:
+
+  app:
+    container_name: chlora-services
+    image: ghcr.io/chlora-app/chlora-services:latest
+    ports: ["8080:8080"]
+    restart: unless-stopped
+    depends_on:
+      db-prod:
+        condition: service_healthy
+      mqtt-prod:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - TZ=Asia/Jakarta
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - MQTT_USER=${MQTT_USER}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - BOT_TOKEN=${BOT_TOKEN}
+    networks:
+      - chlora-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 768m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  chlora-ml:
+    image: ghcr.io/chlora-app/chlora-ml:1.3
+    container_name: chlora-ml
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/src/detector/models
+    networks:
+      - chlora-network
+    restart: unless-stopped
+
+  db-prod:
+    container_name: db-prod
+    image: postgres:16-alpine
+    ports: ["5433:5432"]
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Jakarta
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - chlora-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - chlora-network
+
+  mqtt-prod:
+    container_name: mqtt-prod
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports: ["1884:1883", "9002:9001"]
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - chlora-mqtt-data:/mosquitto/data
+      - chlora-mqtt-log:/mosquitto/log
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-t", "$$SYS/#", "-C", "1", "-u", "${MQTT_USER}", "-P", "${MQTT_PASSWORD}", "--quiet"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - chlora-network
+
+volumes:
+  chlora-db-data:
+  chlora-mqtt-data:
+  chlora-mqtt-log:
+
+networks:
+  chlora-network:
+    driver: bridge
