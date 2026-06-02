@@ -1,9 +1,9 @@
 spring:
   application.name: Chlora
   datasource:
-    url: jdbc:postgresql://103.150.92.246:5432/chlora
-    username: chlora
-    password: root
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   sql:
     init:
@@ -26,22 +26,22 @@ spring:
 
 mqtt:
   config:
-    broker-url: tcp://103.150.92.246:1883
-    client-id: chlora-sub-12345
-    username: chlora
-    password: root
+    broker-url: ${MQTT_BROKER_URL}
+    client-id: chlora-sub-123456
+    username: ${MQTT_USERNAME}
+    password: ${MQTT_PASSWORD}
   subscriber:
     topic: chlora/+/sensors
     qos: 1
 
 security:
   jwt:
-    secret: vHhRhIyNrMU9lUAO1LvBpSLHIDY3sLPpQUuoz/aq296jlmRnUY3WMeN3yvoJ0Pa/wlFtIwaiEyMq380BuGDg7w==
+    secret: ${JWT_SECRET}
 
 telegram:
   config:
-    bot-token: 8691907573:AAGXKVLXPq-gqA-I781NAf-ys7CSJd25pBw
-    chat-id: "-1003817135707"
+    bot-token: ${TELEGRAM_BOT_TOKEN}
+    chat-id: ${TELEGRAM_CHAT_ID}
 
 ml:
   service:
