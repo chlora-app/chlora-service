@@ -1,7 +1,7 @@
 package cloud.chlora.pipeline.anomaly.adapter.out.persistence;
 
-import cloud.chlora.pipeline.shared.event.AnomalySeverity;
-import cloud.chlora.pipeline.shared.event.AnomalyType;
+import cloud.chlora.shared.enums.AnomalySeverity;
+import cloud.chlora.shared.enums.AnomalyType;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -6,10 +6,14 @@ import cloud.chlora.pipeline.anomaly.domain.model.DetectionRequest;
 import cloud.chlora.pipeline.anomaly.domain.model.DetectionResponse;
 import cloud.chlora.pipeline.anomaly.domain.port.AnomalyDetectionPort;
 import cloud.chlora.pipeline.anomaly.domain.port.AnomalyPersistencePort;
-import cloud.chlora.pipeline.shared.event.AnomalySeverity;
+import cloud.chlora.pipeline.shared.event.SensorAnomalyDetectedEvent;
+import cloud.chlora.shared.enums.AnomalySeverity;
+import cloud.chlora.shared.enums.AnomalyType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
@@ -20,8 +24,10 @@ public class AnomalyService implements UpdateAnomalyUseCase {
 
     private final AnomalyDetectionPort detectionPort;
     private final AnomalyPersistencePort persistencePort;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
+    @Transactional
     public void update(DetectionRequest request, Long telemetryId) {
         DetectionResponse response = detectionPort.detect(request);
         if (!response.isAnomaly()) {
@@ -29,14 +35,12 @@ public class AnomalyService implements UpdateAnomalyUseCase {
             return;
         }
 
-        log.warn(
-                "[Anomaly] Anomaly detected telemetryId={} deviceId={} severity={} score={}",
-                telemetryId, request.deviceId(), response.severity(), response.anomalyScore()
-        );
+        log.warn("[Anomaly] Anomaly detected telemetryId={} deviceId={} severity={} score={}",
+                telemetryId, request.deviceId(), response.severity(), response.anomalyScore());
 
         Anomaly anomaly = Anomaly.builder()
                 .id(null)
-                .anomalyType(null)
+                .anomalyType(AnomalyType.SENSOR_ANOMALY)
                 .severity(AnomalySeverity.valueOf(response.severity()))
                 .anomalyScore(response.anomalyScore())
                 .detectedBy(response.detectedBy())
@@ -47,5 +51,17 @@ public class AnomalyService implements UpdateAnomalyUseCase {
                 .build();
 
         persistencePort.save(anomaly);
+
+        eventPublisher.publishEvent(new SensorAnomalyDetectedEvent(
+                request.deviceId(),
+                Instant.now(),
+                anomaly.detectedAt(),
+                anomaly.anomalyType(),
+                anomaly.severity(),
+                null,
+                0f,
+                0f,
+                0f
+        ));
     }
 }

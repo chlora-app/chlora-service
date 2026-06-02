@@ -1,7 +1,7 @@
 package cloud.chlora.pipeline.anomaly.domain.model;
 
-import cloud.chlora.pipeline.shared.event.AnomalySeverity;
-import cloud.chlora.pipeline.shared.event.AnomalyType;
+import cloud.chlora.shared.enums.AnomalySeverity;
+import cloud.chlora.shared.enums.AnomalyType;
 import lombok.Builder;
 
 import java.time.Instant;
