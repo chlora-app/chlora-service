@@ -36,7 +36,7 @@ public class TelemetryService implements SaveTelemetryUseCase {
                 event.soilMoisture(),
                 event.temperature(),
                 event.humidity(),
-                event.batteryLevel(),
+                Math.round(event.batteryLevel()),
                 event.receivedAt(),
                 validationResult.valid()
         );

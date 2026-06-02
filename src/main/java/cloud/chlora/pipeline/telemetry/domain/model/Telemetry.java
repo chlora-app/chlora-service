@@ -12,7 +12,7 @@ public record Telemetry(
         float soilMoisture,
         float temperature,
         float humidity,
-        float batteryLevel,
+        int batteryLevel,
         Instant receivedAt,
         boolean isValid
 ) {}

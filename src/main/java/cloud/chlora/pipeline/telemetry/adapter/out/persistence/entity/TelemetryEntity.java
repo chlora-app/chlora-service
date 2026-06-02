@@ -34,7 +34,7 @@ public class TelemetryEntity {
     private float humidity;
 
     @Column(name = "battery_level", nullable = false)
-    private float batteryLevel;
+    private int batteryLevel;
 
     @Column(name = "received_at", nullable = false)
     private Instant receivedAt;
