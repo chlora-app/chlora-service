@@ -1,5 +1,6 @@
 package cloud.chlora.pipeline.dashboard.adapter.out.sse;
 
+import cloud.chlora.pipeline.dashboard.domain.port.DashboardSsePort;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DashboardSseRegistry {
+public class DashboardSseRegistry implements DashboardSsePort {
 
     private final ObjectMapper objectMapper;
 

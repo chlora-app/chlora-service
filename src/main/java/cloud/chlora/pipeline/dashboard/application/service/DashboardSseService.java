@@ -1,8 +1,8 @@
 package cloud.chlora.pipeline.dashboard.application.service;
 
-import cloud.chlora.pipeline.dashboard.adapter.out.sse.DashboardSseRegistry;
 import cloud.chlora.pipeline.dashboard.application.usecase.GetDashboardSnapshotUseCase;
 import cloud.chlora.pipeline.dashboard.domain.model.DashboardSnapshot;
+import cloud.chlora.pipeline.dashboard.domain.port.DashboardSsePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class DashboardSseService {
 
     private final GetDashboardSnapshotUseCase snapshotUseCase;
-    private final DashboardSseRegistry registry;
+    private final DashboardSsePort ssePort;
 
     public DashboardSnapshot getSnapshot() {
         return snapshotUseCase.execute();
@@ -21,6 +21,6 @@ public class DashboardSseService {
 
     public void broadcastSnapshot() {
         DashboardSnapshot snapshot = snapshotUseCase.execute();
-        registry.broadcast("dashboard-update", snapshot);
+        ssePort.broadcast("dashboard-update", snapshot);
     }
 }

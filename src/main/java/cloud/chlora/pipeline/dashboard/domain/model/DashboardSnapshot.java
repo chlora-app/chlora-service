@@ -24,7 +24,7 @@ public record DashboardSnapshot(
             String potName,
             boolean isOnline,
             float temperature,
-            float battery,
+            int battery,
             float soilMoisture,
             float humidity,
             int anomalyCount,

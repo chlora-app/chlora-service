@@ -65,7 +65,7 @@ public class DashboardQueryAdapter implements DashboardQueryRepository {
                     GROUP BY d.pot_id
                 ) ac ON ac.pot_id = p.pot_id
                 WHERE p.deleted_at IS NULL
-                ORDER BY p.pot_name
+                ORDER BY is_online DESC, last_updated DESC NULLS LAST;
                 """;
 
         List<Object[]> rows = em.createNativeQuery(sql).getResultList();
@@ -75,7 +75,7 @@ public class DashboardQueryAdapter implements DashboardQueryRepository {
                 (String) row[1],
                 (Boolean) row[2],
                 toFloat(row[3]),
-                toFloat(row[4]),
+                toInt(row[4]),
                 toFloat(row[5]),
                 toFloat(row[6]),
                 ((Number) row[7]).intValue(),
@@ -121,9 +121,9 @@ public class DashboardQueryAdapter implements DashboardQueryRepository {
 
         DashboardSnapshot.AnomalySummary.LastDetected lastDetected = lastRows.isEmpty() ? null
                 : new DashboardSnapshot.AnomalySummary.LastDetected(
-                        (String) lastRows.getFirst()[0],
-                        (String) lastRows.getFirst()[1],
-                        toInstant(lastRows.getFirst()[2]));
+                (String) lastRows.getFirst()[0],
+                (String) lastRows.getFirst()[1],
+                toInstant(lastRows.getFirst()[2]));
 
         return new DashboardSnapshot.AnomalySummary(
                 new DashboardSnapshot.AnomalySummary.Today(
@@ -137,6 +137,10 @@ public class DashboardQueryAdapter implements DashboardQueryRepository {
 
     private float toFloat(Object val) {
         return val == null ? 0f : ((Number) val).floatValue();
+    }
+
+    private int toInt(Object val) {
+        return val == null ? 0 : ((Number) val).intValue();
     }
 
     private Instant toInstant(Object val) {
