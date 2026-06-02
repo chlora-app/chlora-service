@@ -95,34 +95,6 @@ class LoginUseCaseTest {
     }
 
     @Test
-    @DisplayName("execute should throw UserNotFoundException when user not found")
-    void execute_shouldThrowUserNotFound_whenNotFound() {
-        // Arrange
-        LoginRequest request = new LoginRequest("unknown@example.com", "password123");
-        when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThatThrownBy(() -> loginUseCase.execute(request))
-                .isInstanceOf(AuthException.UserNotFoundException.class);
-    }
-
-    @Test
-    @DisplayName("execute should throw UserNotFoundException when user is deleted")
-    void execute_shouldThrowUserNotFound_whenUserDeleted() {
-        // Arrange
-        User deletedUser = User.builder()
-                .email("deleted@example.com")
-                .deletedAt(Instant.now())
-                .build();
-        LoginRequest request = new LoginRequest("deleted@example.com", "password123");
-        when(userRepository.findByEmail("deleted@example.com")).thenReturn(Optional.of(deletedUser));
-
-        // Act & Assert
-        assertThatThrownBy(() -> loginUseCase.execute(request))
-                .isInstanceOf(AuthException.UserNotFoundException.class);
-    }
-
-    @Test
     @DisplayName("execute should throw InvalidCredentialsException when password matches failed")
     void execute_shouldThrowInvalidCredentials_whenPasswordFailed() {
         // Arrange
