@@ -51,6 +51,12 @@ public class DeviceReadRepositoryAdapter implements DeviceReadRepository {
         );
     }
 
+    @Override
+    public Optional<Device> findByPotId(String potId) {
+        return repository.findByPotIdAndDeletedAtIsNull(potId)
+                .map(DevicePersistenceMapper::toDomain);
+    }
+
     // ── helpers ───────────────────────────────────────────────────────────────
     private String toColumnName(String col) {
         return switch (col) {

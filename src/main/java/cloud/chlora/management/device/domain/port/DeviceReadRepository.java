@@ -17,4 +17,6 @@ public interface DeviceReadRepository {
     );
 
     long countAll(String search, String potId, DeviceStatus status);
+
+    Optional<Device> findByPotId(String potId);
 }

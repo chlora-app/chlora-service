@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 public enum UserErrorCode implements AppErrorCode {
 
     USER_PATCH_EMPTY("AUTH-400-001", HttpStatus.BAD_REQUEST, "user", "No fields provided to patch"),
+    INVALID_PASSWORD("AUTH-400-002", HttpStatus.BAD_REQUEST, "user", "Invalid password"),
 
     USER_NOT_FOUND("USER-404-001", HttpStatus.NOT_FOUND, "user", "User not found"),
 

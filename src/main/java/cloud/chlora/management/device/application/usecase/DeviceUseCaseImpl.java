@@ -99,17 +99,35 @@ public class DeviceUseCaseImpl implements DeviceUseCase {
             throw AppException.of(IotErrorCode.DEVICE_REQUEST_INVALID);
         }
 
-        if (request.potId() != null && !potExistencePort.existsByPotId(request.potId())) {
+        String trimmedPotId    = request.potId() != null ? request.potId().trim() : null;
+        boolean isUnassigning  = trimmedPotId != null && trimmedPotId.equalsIgnoreCase("UNASSIGNED");
+        String normalizedPotId = isUnassigning ? "UNASSIGNED" : trimmedPotId;
+
+        if (normalizedPotId != null && !isUnassigning && !potExistencePort.existsByPotId(normalizedPotId)) {
             log.warn("[DeviceUseCase] updateDevice - pot not found: {}", request.potId());
             throw AppException.of(IotErrorCode.POT_NOT_FOUND);
         }
 
+        if (normalizedPotId != null && !isUnassigning) {
+            readRepository.findByPotId(normalizedPotId).ifPresent(existing -> {
+                if (!existing.deviceId().equals(deviceId)) {
+                    log.warn("[DeviceUseCase] updateDevice - pot {} already assigned to device {}", normalizedPotId, existing.deviceId());
+                    throw AppException.of(IotErrorCode.POT_ALREADY_ASSIGNED);
+                }
+            });
+        }
         if (request.status() != null) parseStatus(request.status());
 
         Device device = requireDevice(deviceId);
         if (device.isDeleted()) throw AppException.of(IotErrorCode.DEVICE_ALREADY_DELETED);
 
-        Device updated = writeRepository.update(deviceId, request);
+        DeviceUpdateRequest normalized = new DeviceUpdateRequest(
+                request.deviceName(),
+                request.status(),
+                normalizedPotId
+        );
+
+        Device updated = writeRepository.update(deviceId, normalized);
         log.info("[DeviceUseCase] updated deviceId={}", deviceId);
 
         return new DeviceUpdateResponse(

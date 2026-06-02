@@ -17,6 +17,7 @@ public enum IotErrorCode implements AppErrorCode {
     POT_NOT_FOUND(                "POT-404-001", HttpStatus.NOT_FOUND,    "pot",        "Pot not found"),
     POT_NAME_ALREADY_EXISTS(      "POT-409-001", HttpStatus.CONFLICT,     "pot",        "Pot name already exists"),
     POT_ALREADY_DELETED(          "POT-409-002", HttpStatus.CONFLICT,     "pot",        "Pot already deleted"),
+    POT_ALREADY_ASSIGNED(         "POT-409-003", HttpStatus.CONFLICT,     "pot",        "Pot already assigned to another device"),
 
     PAGE_LOWER_THAN_ONE(          "GEN-400-001", HttpStatus.BAD_REQUEST,  "pagination", "Page must be greater than 0"),
     SIZE_LOWER_THAN_ONE(          "GEN-400-002", HttpStatus.BAD_REQUEST,  "pagination", "Size must be greater than 0");

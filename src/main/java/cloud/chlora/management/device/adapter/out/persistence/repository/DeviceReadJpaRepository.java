@@ -88,4 +88,6 @@ public interface DeviceReadJpaRepository extends JpaRepository<DeviceReadEntity,
             SELECT * FROM devices WHERE pot_id = :potId AND deleted_at IS NULL
             """, nativeQuery = true)
     List<DeviceReadEntity> findAllByPotIdActive(@Param("potId") String potId);
+
+    Optional<DeviceReadEntity> findByPotIdAndDeletedAtIsNull(String potId);
 }
