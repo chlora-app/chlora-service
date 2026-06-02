@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   application.name: Chlora
   datasource:
@@ -44,3 +47,12 @@ telegram:
 ml:
   service:
     url: http://chlora-ml:8000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  endpoint:
+    health:
+      show-details: never
