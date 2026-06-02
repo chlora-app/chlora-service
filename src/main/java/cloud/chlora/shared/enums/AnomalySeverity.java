@@ -1,4 +1,4 @@
-package cloud.chlora.pipeline.shared.event;
+package cloud.chlora.shared.enums;
 
 public enum AnomalySeverity {
     LOW,
